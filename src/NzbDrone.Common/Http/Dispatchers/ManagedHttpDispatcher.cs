@@ -127,7 +127,7 @@ namespace NzbDrone.Common.Http.Dispatchers
                     return new HttpResponse(request, new HttpHeader(headers), data, responseMessage.StatusCode);
                 }
             }
-            catch (TaskCanceledException ex) when (cts.IsCancellationRequested)
+            catch (OperationCanceledException ex) when (cts.IsCancellationRequested)
             {
                 throw new WebException("Http request timed out", ex.InnerException, WebExceptionStatus.Timeout, null);
             }
