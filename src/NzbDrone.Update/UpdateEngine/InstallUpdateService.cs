@@ -125,6 +125,33 @@ namespace NzbDrone.Update.UpdateEngine
                     _logger.Info("Copying new files to target folder");
                     _diskTransferService.MirrorFolder(_appFolderInfo.GetUpdatePackageFolder(), installationFolder);
 
+                    // Update registry 'DisplayVersion' for Windows
+                    if (OsInfo.IsWindows)
+                    {
+                        try
+                        {
+                            // Constructing the registry key path using the uninstall path and the app id from inno setup
+                            string registryKeyPath = @"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\" + BuildInfo.InnoAppId;
+
+                            using (RegistryKey key = Registry.LocalMachine.OpenSubKey(registryKeyPath, true))
+                            {
+                                if (key != null)
+                                {
+                                    key.SetValue("DisplayVersion", BuildInfo.Version, RegistryValueKind.String);
+                                    _logger.Info("Updated registry 'DisplayVersion' to {0}", BuildInfo.Version);
+                                }
+                                else
+                                {
+                                    _logger.Warn("Registry key not found: {0}", registryKeyPath);
+                                }
+                            }
+                        }
+                        catch (Exception registryException)
+                        {
+                            _logger.Warn(registryException, "Failed to update registry 'DisplayVersion'");
+                        }
+                    }
+
                     // Set executable flag on app and ffprobe
                     if (OsInfo.IsOsx || OsInfo.IsLinux)
                     {

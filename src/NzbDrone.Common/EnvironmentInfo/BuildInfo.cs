@@ -27,6 +27,7 @@ namespace NzbDrone.Common.EnvironmentInfo
         }
 
         public static string AppName { get; } = "Sonarr";
+        public static string InnoAppId { get; } = "{56C1065D-3523-4025-B76D-6F73F67F7F71}_is1";
 
         public static Version Version { get; }
         public static string Branch { get; }
